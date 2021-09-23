@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SR2.Models;
 using SR2.Services;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,26 @@ namespace SR2.Controllers
         {
             _vehicleType = vehicleType;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
+        {
+            return View(await _vehicleType.GetVehicleTypes());
+        }
+        public IActionResult Create()
         {
             return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(VehicleType vehicle)
+        {
+            if (ModelState.IsValid)
+            {
+                if (await _vehicleType.Save(vehicle))
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+            return View(vehicle);
         }
     }
 }
